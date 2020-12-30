@@ -3,6 +3,7 @@
 target
 dependency-reduced-pom.xml
 .idea/*
+.mvn/*
 
 # private configuration
 */src/main/resources/env/private
