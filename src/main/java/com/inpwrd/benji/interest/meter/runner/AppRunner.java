@@ -1,9 +1,9 @@
 package com.inpwrd.benji.interest.meter.runner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inpwrd.benji.interest.meter.model.ArgumentWrapper;
 import com.inpwrd.benji.interest.meter.model.MeasuredResultsWrapper;
 import com.inpwrd.benji.interest.meter.service.InterestBatchService;
-import com.inpwrd.benji.interest.meter.service.InterestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,13 @@ public class AppRunner implements CommandLineRunner {
 
     private static Logger LOG = LoggerFactory.getLogger(AppRunner.class);
     private final InterestBatchService interestBatchService;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public AppRunner(InterestBatchService interestBatchService) {
+    public AppRunner(InterestBatchService interestBatchService,
+                     ObjectMapper objectMapper) {
         this.interestBatchService = interestBatchService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class AppRunner implements CommandLineRunner {
         LOG.info("EXECUTING : command line runner");
         ArgumentWrapper argumentWrapper = this.validateArgs(args);
         MeasuredResultsWrapper results = interestBatchService.triggerInterestSearches(argumentWrapper);
-        LOG.info(results.toString());
+        LOG.info(objectMapper.writeValueAsString(results));
     }
 
     private ArgumentWrapper validateArgs(String... args) {
