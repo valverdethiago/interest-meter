@@ -1,0 +1,12 @@
+.DS_Store
+*.iml
+target
+dependency-reduced-pom.xml
+.idea/*
+
+# private configuration
+*/src/main/resources/env/private
+# temporary config renderer
+configuration-renderer.sh
+# rendered config for local development
+configuration-*.yml
