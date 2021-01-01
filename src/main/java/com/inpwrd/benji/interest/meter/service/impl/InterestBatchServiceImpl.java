@@ -5,35 +5,26 @@ import com.inpwrd.benji.interest.meter.model.MeasuredResultsWrapper;
 import com.inpwrd.benji.interest.meter.model.MetricsWrapper;
 import com.inpwrd.benji.interest.meter.service.InterestBatchService;
 import com.inpwrd.benji.interest.meter.service.InterestService;
-import io.vavr.collection.Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class InterestBatchServiceImpl implements InterestBatchService {
 
     public static String[] TOPICS = {"sports", "cars", "adventure", "movies", "celebrities", "fashion", "technology",
         "soccer", "finance"};
-    private static final Logger LOG = LoggerFactory.getLogger(InterestBatchServiceImpl.class);
-    private final InterestService[] interestSearchServices;
+    private final ApplicationContext applicationContext;
 
     @Autowired
-    public InterestBatchServiceImpl(RestTemplate restTemplate, ApplicationContext applicationContext) {
-        interestSearchServices = new InterestService[TOPICS.length];
-        Stream.of(TOPICS).zipWithIndex().forEach(tuple -> {
-            InterestService interestService = applicationContext.getBean(InterestService.class);
-            interestService.setTopic(tuple._1());
-            interestSearchServices[tuple._2()] = interestService;
-        });
+    public InterestBatchServiceImpl(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
 
@@ -56,7 +47,7 @@ public class InterestBatchServiceImpl implements InterestBatchService {
 
     private List<MetricsWrapper> processSearches(final ArgumentWrapper argumentWrapper) {
         List<CompletableFuture<MetricsWrapper>> promises = this.buildPromises(argumentWrapper);
-        CompletableFuture.allOf(promises.toArray(new CompletableFuture[TOPICS.length])).join();
+        CompletableFuture.allOf(promises.toArray(new CompletableFuture[promises.size()])).join();
         return promises.stream().map(promise -> {
             try {
                 return promise.get();
@@ -68,7 +59,14 @@ public class InterestBatchServiceImpl implements InterestBatchService {
     }
 
     private List<CompletableFuture<MetricsWrapper>> buildPromises(final ArgumentWrapper argumentWrapper) {
-        return Stream.of(interestSearchServices).map(interestService -> interestService.fetchInterest(argumentWrapper))
-            .toJavaList();
+        List<CompletableFuture<MetricsWrapper>> promises = new ArrayList<>();
+        IntStream.range(0, argumentWrapper.getConcurrentClients()).forEach(i -> {
+            Arrays.stream(TOPICS).forEach(topic -> {
+                InterestService interestService = applicationContext.getBean(InterestService.class);
+                interestService.setTopic(topic);
+                promises.add(interestService.fetchInterest(argumentWrapper));
+            });
+        });
+        return promises;
     }
 }

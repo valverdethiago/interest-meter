@@ -41,12 +41,15 @@ public class AppRunner implements CommandLineRunner {
         if (args.length < 2) {
             throw new IllegalArgumentException("You must specify at least 2 arguments to execute this");
         }
+        final Integer concurrentClients = args.length == 3 ? Integer.valueOf(args[2]) : 1;
         final String basePath = args[0];
         final String refreshCache = args[1];
+
         this.validateUrl(basePath);
         this.validateBoolean(refreshCache);
         return
-            ArgumentWrapper.builder().basePath(basePath).refreshCache(Boolean.valueOf(refreshCache)).build();
+            ArgumentWrapper.builder().basePath(basePath).refreshCache(Boolean.valueOf(refreshCache))
+                .concurrentClients(concurrentClients).build();
     }
 
     private void validateBoolean(String refreshCache) {

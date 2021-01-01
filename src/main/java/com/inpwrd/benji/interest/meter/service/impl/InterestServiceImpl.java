@@ -19,10 +19,9 @@ import java.util.concurrent.CompletableFuture;
 @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class InterestServiceImpl implements InterestService {
 
-    private static Logger LOG = LoggerFactory.getLogger(InterestServiceImpl.class);
     private static final String REST_URL =
         "%s/channels/interest?q=%s&topRanking=50&refresh=%b";
-
+    private static Logger LOG = LoggerFactory.getLogger(InterestServiceImpl.class);
     private final RestTemplate restTemplate;
     private String topic;
 
@@ -38,7 +37,8 @@ public class InterestServiceImpl implements InterestService {
         InterestResponseWrapper result = restTemplate.getForObject(restUrl, InterestResponseWrapper.class);
         result.setTopic(this.getTopic());
         final LocalDateTime end = LocalDateTime.now();
-        MetricsWrapper metrics = MetricsWrapper.builder().startTime(start).endTime(end).result(result).createMetricsWrapper();
+        MetricsWrapper metrics =
+            MetricsWrapper.builder().startTime(start).endTime(end).result(result).createMetricsWrapper();
         return CompletableFuture.completedFuture(metrics);
     }
 

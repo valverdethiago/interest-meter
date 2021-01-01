@@ -7,8 +7,8 @@ public class MetricsWrapper {
 
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;
-    private long elapsedTime;
     private final InterestResponseWrapper result;
+    private long elapsedTime;
 
     public MetricsWrapper(LocalDateTime startTime, LocalDateTime endTime, InterestResponseWrapper result) {
         this.startTime = startTime;
@@ -17,12 +17,12 @@ public class MetricsWrapper {
         this.calculate();
     }
 
-    private void calculate() {
-        this.elapsedTime = ChronoUnit.MILLIS.between(startTime, endTime);
+    public static MetricsWrapperBuilder builder() {
+        return new MetricsWrapperBuilder();
     }
 
-    public static  MetricsWrapperBuilder builder() {
-        return new MetricsWrapperBuilder();
+    private void calculate() {
+        this.elapsedTime = ChronoUnit.MILLIS.between(startTime, endTime);
     }
 
     public LocalDateTime getStartTime() {

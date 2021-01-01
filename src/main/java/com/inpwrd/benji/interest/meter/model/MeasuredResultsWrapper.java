@@ -8,8 +8,8 @@ public class MeasuredResultsWrapper {
 
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;
-    private long elapsedTime;
     private final Map<String, Long> result;
+    private long elapsedTime;
 
     public MeasuredResultsWrapper(LocalDateTime startTime, LocalDateTime endTime, Map<String, Long> result) {
         this.startTime = startTime;
@@ -18,12 +18,12 @@ public class MeasuredResultsWrapper {
         this.calculate();
     }
 
-    private void calculate() {
-        this.elapsedTime = ChronoUnit.MILLIS.between(startTime, endTime);
-    }
-
     public static MeasuredResultsWrapperBuilder builder() {
         return new MeasuredResultsWrapperBuilder();
+    }
+
+    private void calculate() {
+        this.elapsedTime = ChronoUnit.MILLIS.between(startTime, endTime);
     }
 
     public LocalDateTime getStartTime() {
